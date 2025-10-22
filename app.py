@@ -74,14 +74,6 @@ if st.button("🚜 Enviar nivel de riego"):
     client1.publish("cmqtt_angiel", message)
     st.info(f"💧 Nivel de riego actualizado a {values:.1f}%")
 
-# ==========================
-# INFORMACIÓN EXTRA
-# ==========================
-st.divider()
-st.subheader("📡 Estado del sistema")
-st.write("Broker:", broker)
-st.write("Puerto:", port)
-st.caption("Desarrollado por Angie 💻 | Proyecto de Comunicación IoT con MQTT y Wokwi 🌍")
 
 
 
