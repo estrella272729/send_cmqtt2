@@ -5,17 +5,18 @@ import base64
 
 st.set_page_config(page_title="Relax Space", page_icon="🌿", layout="centered")
 
-# ---------- OCULTAR BARRA DEL AUDIO ----------
+# ---------- OCULTAR BARRA GRIS DEL AUDIO ----------
 st.markdown("""
 <style>
 audio { display: none; }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- FUNCIÓN PARA FONDO ----------
+# ---------- FUNCIÓN PARA FONDO CON BASE64 ----------
 def fondo(nombre_archivo):
     with open(nombre_archivo, "rb") as img:
         encoded = base64.b64encode(img.read()).decode()
+
     st.markdown(f"""
     <style>
     .stApp {{
@@ -35,22 +36,26 @@ def fondo(nombre_archivo):
     </style>
     """, unsafe_allow_html=True)
 
-# ---------- FUNCIÓN PARA AUDIO CON FADE-IN ----------
+# ---------- FUNCIÓN DE AUDIO CON FADE + DESBLOQUEO ----------
 def play_audio(file):
     st.markdown(f"""
-    <audio id="audio" src="{file}" autoplay loop></audio>
+    <audio id="audio" src="{file}" loop></audio>
     <script>
-        const audio = document.getElementById("audio");
-        audio.volume = 0;
-        let v = 0.0;
-        let fade = setInterval(() => {{
-            if(v < 1.0) {{
-                v += 0.01;
-                audio.volume = v;
-            }} else {{
-                clearInterval(fade);
-            }}
-        }}, 120);
+        let audio = document.getElementById("audio");
+        document.addEventListener("click", () => {{
+            audio.play();
+            // Fade-in suave
+            audio.volume = 0;
+            let v = 0;
+            let fade = setInterval(() => {{
+                if(v < 1.0) {{
+                    v += 0.02;
+                    audio.volume = v;
+                }} else {{
+                    clearInterval(fade);
+                }}
+            }}, 120);
+        }}, {{ once: true }});
     </script>
     """, unsafe_allow_html=True)
 
@@ -67,17 +72,17 @@ def publicar(mensaje):
 # ---------- UI ----------
 st.title("🌿 Relaxation Multimodal Space")
 
-ambiente = st.radio("Choose an environment:", ["Selva (Forest)", "Desierto Dorado (Desert)", "Spa Personalizado (Custom Spa)"])
+ambiente = st.radio("Choose an environment:", ["Forest", "Desert", "Custom Spa"])
 
-# ---------- SELVA ----------
-if ambiente == "Selva (Forest)":
+# ---------- FOREST ----------
+if ambiente == "Forest":
     fondo("sel.jpg")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🌿 Forest Ambience")
-    st.write("Birdsong, fresh atmosphere, soft green lighting.")
+    st.write("Birdsong, fresh air, soft green atmosphere.")
 
-    play_audio("birds.mp3")
+    play_audio("birds.mp3")  # sonido automático
 
     if st.button("Activate Forest"):
         publicar({
@@ -88,17 +93,18 @@ if ambiente == "Selva (Forest)":
             "humidificador": "on"
         })
         st.success("✨ Forest Activated")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------- DESIERTO ----------
-elif ambiente == "Desierto Dorado (Desert)":
+# ---------- DESERT ----------
+elif ambiente == "Desert":
     fondo("desi.jpg")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🏜️ Desert Ambience")
-    st.write("Golden light, warm silence, gentle wind.")
+    st.write("Golden light, soft silence, gentle warm wind.")
 
-    play_audio("wind.mp3")
+    play_audio("wind.mp3")  # sonido automático
 
     if st.button("Activate Desert"):
         publicar({
@@ -109,22 +115,23 @@ elif ambiente == "Desierto Dorado (Desert)":
             "humidificador": "off"
         })
         st.success("🔥 Desert Activated")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------- SPA PERSONALIZADO ----------
+# ---------- CUSTOM SPA ----------
 else:
     fondo("spa.jpg")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("🎨 Custom Spa")
-    st.write("Create your own serenity ✨")
+    st.subheader("🎨 Custom Spa Ambience")
+    st.write("Create your personal relaxation mood ✨")
 
     luz = st.color_picker("Light color:", "#F5EEDC")
     sonido = st.selectbox("Sound:", ["Rain", "Wind", "Instrumental", "Birds", "Silence"])
     temperatura = st.slider("Temperature (°C):", 16, 32, 24)
     humidificador = st.radio("Humidifier:", ["ON", "OFF"])
 
-    # Música SOLO si el usuario la elige
+    # Sonido solo si el usuario lo elige
     if sonido != "Silence":
         play_audio(f"{sonido.lower()}.mp3")
 
@@ -139,3 +146,4 @@ else:
         st.success("💖 Custom Spa Activated")
 
     st.markdown('</div>', unsafe_allow_html=True)
+
