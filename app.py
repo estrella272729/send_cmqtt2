@@ -1,14 +1,13 @@
 import paho.mqtt.client as paho
-import time
 import streamlit as st
 import json
 import platform
 
-st.title("Control de Ambientes de Relajación")
+st.set_page_config(page_title="Ambientes de Relajación", page_icon="🌿", layout="centered")
 st.write("Versión de Python:", platform.python_version())
 
-broker="157.230.214.127"
-port=1883
+broker = "157.230.214.127"
+port = 1883
 
 def publicar(topico, mensaje):
     client = paho.Client("StreamlitApp")
@@ -16,69 +15,63 @@ def publicar(topico, mensaje):
     client.publish(topico, json.dumps(mensaje))
     client.disconnect()
 
-# Selección de ambiente
-ambiente = st.radio(
-    "Selecciona un ambiente:",
-    ("Selva", "Desierto", "Personalizado")
-)
+st.title("🌿 Espacio de Relajación Multimodal")
 
-# ---------- AMBIENTE SELVA ----------
+ambiente = st.radio("Selecciona un ambiente:", ["Selva", "Desierto", "Personalizado"])
+
 if ambiente == "Selva":
-    st.subheader("🌿 Ambiente Selva (Predeterminado)")
-    st.write("""
-    - Luz: Verde suave  
-    - Sonido: Lluvia + Pájaros  
-    - Temperatura: 22°C  
-    - Humidificador: Alto  
-    """)
-
+    st.subheader("🌿 Ambiente Selva")
+    st.write("Luz verde suave, sonidos de aves, temperatura 22°C, humidificador ON")
+    # reproducir sonido de pájaros
+    audio_file = "birds.mp3"
+    st.audio(audio_file, format='audio/mp3')
     if st.button("Activar Selva"):
         publicar("cmqtt_env", {
             "ambiente": "selva",
             "luz": "verde",
-            "sonido": "lluvia aves",
+            "sonido": "aves",
             "temperatura": 22,
-            "humidificador": "alto"
+            "humidificador": "on"
         })
-        st.success("Ambiente Selva Activado")
+        st.success("✅ Selva activada")
 
-
-# ---------- AMBIENTE DESIERTO ----------
 elif ambiente == "Desierto":
-    st.subheader("🏜️ Ambiente Desierto (Predeterminado)")
-    st.write("""
-    - Luz: Ámbar cálido  
-    - Sonido: Viento suave  
-    - Temperatura: 28°C  
-    - Humidificador: Bajo  
-    """)
-
+    st.subheader("🏜️ Ambiente Desierto")
+    st.write("Luz ámbar cálida, sonido de viento, temperatura 28°C, humidificador OFF")
+    # reproducir sonido de viento
+    audio_file = "wind.mp3"
+    st.audio(audio_file, format='audio/mp3')
     if st.button("Activar Desierto"):
         publicar("cmqtt_env", {
             "ambiente": "desierto",
             "luz": "ambar",
             "sonido": "viento",
             "temperatura": 28,
-            "humidificador": "bajo"
+            "humidificador": "off"
         })
-        st.success("Ambiente Desierto Activado")
+        st.success("✅ Desierto activado")
 
-
-# ---------- AMBIENTE PERSONALIZADO ----------
-elif ambiente == "Personalizado":
-    st.subheader("🎨 Ambiente Personalizable")
-
-    luz = st.selectbox("Color de Luz:", ["Rojo", "Azul", "Verde", "Ámbar", "Blanco"])
-    sonido = st.selectbox("Tipo de Sonido:", ["Lluvia", "Viento suave", "Instrumental", "Silencio"])
+else:  # Personalizado
+    st.subheader("🎨 Ambiente Personalizado")
+    luz = st.color_picker("Selecciona color de luz:", "#ffffff")
+    sonido_select = st.selectbox("Sonido:", ["Lluvia", "Viento", "Instrumental", "Silencio"])
     temperatura = st.slider("Temperatura (°C):", 16, 32, 24)
-    humidificador = st.select_slider("Nivel Humidificador:", options=["Apagado", "Bajo", "Medio", "Alto"])
+    humidificador = st.radio("Humidificador:", ["ON", "OFF"])
+
+    # reproducir el sonido elegido
+    if sonido_select != "Silencio":
+        audio_file = f"{sonido_select.lower()}.mp3"
+        st.audio(audio_file, format='audio/mp3')
+    else:
+        st.write("🔇 Silencio seleccionado")
 
     if st.button("Activar Personalizado"):
-        publicar("cmqtt_env", {
+        publicar({
             "ambiente": "personalizado",
-            "luz": luz.lower(),
-            "sonido": sonido.lower(),
+            "luz": luz,
+            "sonido": sonido_select.lower(),
             "temperatura": temperatura,
             "humidificador": humidificador.lower()
         })
-        st.success("Ambiente Personalizado Activado")
+        st.success("✅ Ambiente personalizado activado")
+
