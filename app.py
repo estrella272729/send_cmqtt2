@@ -49,7 +49,7 @@ ambiente = st.radio("Selecciona un ambiente:", ["Selva (Bosque)", "Desierto Dora
 
 # ---------- SELVA ----------
 if ambiente == "Selva (Bosque)":
-    fondo("https://i.imgur.com/kZwdr7d.jpg")
+    fondo("sel.jpg")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🌿 Ambiente Selva")
@@ -72,7 +72,7 @@ if ambiente == "Selva (Bosque)":
 
 # ---------- DESIERTO ----------
 elif ambiente == "Desierto Dorado":
-    fondo("https://i.imgur.com/HtK8Ij9.jpg")
+    fondo("desi.jpg")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🏜️ Ambiente Desierto Dorado")
@@ -95,7 +95,7 @@ elif ambiente == "Desierto Dorado":
 
 # ---------- SPA PERSONALIZADO ----------
 else:
-    fondo("https://i.imgur.com/GYBNFH1.jpg")
+    fondo("spa.jpg")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🎨 Spa Personalizado")
