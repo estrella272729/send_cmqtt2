@@ -1,6 +1,7 @@
 import paho.mqtt.client as paho
 import streamlit as st
 import json
+import base64
 
 st.set_page_config(page_title="Espacio de Relajación Multimodal", page_icon="🌿", layout="centered")
 
@@ -11,16 +12,20 @@ audio { display: none; }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- FUNCIÓN PARA FONDO ----------
-def fondo(nombre_imagen):
+# ---------- FUNCIÓN PARA CARGAR FONDOS EN BASE64 ----------
+def fondo(nombre_archivo):
+    with open(nombre_archivo, "rb") as img:
+        encoded = base64.b64encode(img.read()).decode()
+
     st.markdown(f"""
     <style>
     .stApp {{
-        background-image: url("{nombre_imagen}");
+        background-image: url("data:image/jpg;base64,{encoded}");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }}
+
     .card {{
         background: rgba(255,255,255,0.65);
         backdrop-filter: blur(20px);
@@ -32,12 +37,12 @@ def fondo(nombre_imagen):
     </style>
     """, unsafe_allow_html=True)
 
-# ---------- MQTT ----------
+# ---------- MQTT CONFIG ----------
 broker = "157.230.214.127"
 port = 1883
 
 def publicar(mensaje):
-    client = paho.Client("voice_angie")  # nombre del cliente MQTT
+    client = paho.Client("voice_angie")  # Cliente MQTT
     client.connect(broker, port)
     client.publish("cmqtt_env", json.dumps(mensaje))
     client.disconnect()
@@ -49,13 +54,12 @@ ambiente = st.radio("Selecciona un ambiente:", ["Selva (Bosque)", "Desierto Dora
 
 # ---------- SELVA ----------
 if ambiente == "Selva (Bosque)":
-    fondo("sel.jpg")   # ← TU IMAGEN LOCAL
+    fondo("sel.jpg")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🌿 Ambiente Selva")
     st.write("Sonido de pájaros, luz verde suave, frescura natural 🌱")
 
-    # AUDIO AUTOMÁTICO
     st.markdown('<audio src="birds.mp3" autoplay loop></audio>', unsafe_allow_html=True)
 
     if st.button("Activar Ambiente Selva"):
@@ -67,18 +71,17 @@ if ambiente == "Selva (Bosque)":
             "humidificador": "on"
         })
         st.success("✨ Selva activada")
-
     st.markdown('</div>', unsafe_allow_html=True)
+
 
 # ---------- DESIERTO ----------
 elif ambiente == "Desierto Dorado":
-    fondo("desi.jpg")  # ← TU IMAGEN LOCAL
+    fondo("desi.jpg")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🏜️ Ambiente Desierto Dorado")
-    st.write("Luz cálida, viento suave, calma profunda 🌬️")
+    st.write("Luz ámbar cálida, viento suave, calma profunda 🌬️")
 
-    # AUDIO AUTOMÁTICO
     st.markdown('<audio src="wind.mp3" autoplay loop></audio>', unsafe_allow_html=True)
 
     if st.button("Activar Ambiente Desierto"):
@@ -90,16 +93,16 @@ elif ambiente == "Desierto Dorado":
             "humidificador": "off"
         })
         st.success("🔥 Desierto activado")
-
     st.markdown('</div>', unsafe_allow_html=True)
+
 
 # ---------- SPA PERSONALIZADO ----------
 else:
-    fondo("spa.jpg")   # ← TU IMAGEN LOCAL
+    fondo("spa.jpg")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🎨 Spa Personalizado")
-    st.write("Un espacio creado a tu medida ✨")
+    st.write("Un ambiente creado a tu medida ✨")
 
     luz = st.color_picker("Color de luz:", "#F5EEDC")
     sonido = st.selectbox("Sonido:", ["Lluvia", "Viento", "Instrumental", "Pájaros", "Silencio"])
