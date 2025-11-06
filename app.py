@@ -12,11 +12,11 @@ audio { display: none; }
 """, unsafe_allow_html=True)
 
 # ---------- FUNCIÓN PARA FONDO ----------
-def fondo(url):
+def fondo(nombre_imagen):
     st.markdown(f"""
     <style>
     .stApp {{
-        background-image: url("{url}");
+        background-image: url("{nombre_imagen}");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -37,7 +37,7 @@ broker = "157.230.214.127"
 port = 1883
 
 def publicar(mensaje):
-    client = paho.Client("voice_angie")  # <---- cliente actualizado
+    client = paho.Client("voice_angie")  # nombre del cliente MQTT
     client.connect(broker, port)
     client.publish("cmqtt_env", json.dumps(mensaje))
     client.disconnect()
@@ -49,7 +49,7 @@ ambiente = st.radio("Selecciona un ambiente:", ["Selva (Bosque)", "Desierto Dora
 
 # ---------- SELVA ----------
 if ambiente == "Selva (Bosque)":
-    fondo("sel.jpg")
+    fondo("sel.jpg")   # ← TU IMAGEN LOCAL
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🌿 Ambiente Selva")
@@ -67,16 +67,16 @@ if ambiente == "Selva (Bosque)":
             "humidificador": "on"
         })
         st.success("✨ Selva activada")
-    st.markdown('</div>', unsafe_allow_html=True)
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------- DESIERTO ----------
 elif ambiente == "Desierto Dorado":
-    fondo("desi.jpg")
+    fondo("desi.jpg")  # ← TU IMAGEN LOCAL
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🏜️ Ambiente Desierto Dorado")
-    st.write("Luz ámbar cálida, viento suave, calma profunda 🌬️")
+    st.write("Luz cálida, viento suave, calma profunda 🌬️")
 
     # AUDIO AUTOMÁTICO
     st.markdown('<audio src="wind.mp3" autoplay loop></audio>', unsafe_allow_html=True)
@@ -90,12 +90,12 @@ elif ambiente == "Desierto Dorado":
             "humidificador": "off"
         })
         st.success("🔥 Desierto activado")
-    st.markdown('</div>', unsafe_allow_html=True)
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------- SPA PERSONALIZADO ----------
 else:
-    fondo("spa.jpg")
+    fondo("spa.jpg")   # ← TU IMAGEN LOCAL
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🎨 Spa Personalizado")
@@ -106,7 +106,6 @@ else:
     temperatura = st.slider("Temperatura (°C):", 16, 32, 24)
     humidificador = st.radio("Humidificador:", ["ON", "OFF"])
 
-    # Reproducir música solo si usuario la elige
     if sonido != "Silencio":
         st.markdown(f'<audio src="{sonido.lower()}.mp3" autoplay loop></audio>', unsafe_allow_html=True)
 
