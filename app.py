@@ -2,83 +2,140 @@ import streamlit as st
 from streamlit_player import st_player
 import paho.mqtt.client as paho
 import json
+import platform
 
-# ========== CONFIG MQTT ==========
+# ==========================
+# CONFIG MQTT
+# ==========================
 broker = "broker.mqttdashboard.com"
 port = 1883
-topic = "spa_relax/control"
-client_name = "cliente_spa_relax"
+client_name = "spa_relax_room"
 
 client = paho.Client(client_name)
 
-def enviar_mqtt(data):
+def publish(topic, payload):
     client.connect(broker, port)
-    mensaje = json.dumps(data)
-    client.publish(topic, mensaje)
-    st.success("✅ Comando enviado a la maqueta")
+    client.publish(topic, payload)
 
-# ========== CONFIG APP ==========
-st.set_page_config(page_title="Spa Multimodal", page_icon="🌿", layout="wide")
-st.title("🌿 ESPACIO DE RELAJACIÓN MULTIMODAL")
+# ==========================
+# STREAMLIT UI CONFIG
+# ==========================
+st.set_page_config(page_title="Spa Multimodal IoT", page_icon="🌿", layout="wide")
 
-
-# ---- DEFINICIÓN DE AMBIENTES ----
-ambientes = {
-    "🌴 Selva (Automático)": {
-        "bg": "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
-        "musica": "https://www.youtube.com/watch?v=OdIJ2x3nxzQ",
-        "config": {"color":"#00AA55","temp":20,"hum":"Alto"},
-        "editable": False
-    },
-    "🏜️ Desierto (Automático)": {
-        "bg": "https://images.unsplash.com/photo-1508264165352-258a6f039317",
-        "musica": "https://www.youtube.com/watch?v=2OEL4P1Rz04",
-        "config": {"color":"#D29944","temp":30,"hum":"Bajo"},
-        "editable": False
-    },
-    "🕯️ Zen Personalizable": {
-        "bg": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-        "musica": "https://www.youtube.com/watch?v=lFcSrYw-ARY",
-        "editable": True
-    }
-}
-
-ambiente = st.selectbox("Seleccione un ambiente:", ambientes.keys())
-data = ambientes[ambiente]
-
-# Fondo dinámico
-st.markdown(f"""
+# ==========================
+# CSS SPA ZEN
+# ==========================
+st.markdown("""
 <style>
-.stApp {{
-    background-image: url("{data['bg']}");
-    background-size: cover;
+.stApp {
+    background: linear-gradient(135deg, #d9f2e6, #ffffff);
     background-attachment: fixed;
-}}
+}
+.card {
+    background: rgba(255,255,255,0.6);
+    padding: 25px;
+    border-radius: 18px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0px 6px 25px rgba(0,0,0,0.18);
+    margin-top: 20px;
+    animation: fadein 0.8s ease;
+}
+@keyframes fadein {
+  from { opacity:0; transform: translateY(8px); }
+  to { opacity:1; transform: translateY(0); }
+}
+.stButton>button {
+    background: #7fc7a9 !important;
+    color: white !important;
+    border-radius: 14px !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    transition: 0.3s;
+    font-size: 18px;
+}
+.stButton>button:hover {
+    transform: scale(1.05);
+    background: #6dbb97 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# Música ambiente
+# ==========================
+# TITLE
+# ==========================
+st.markdown("<h1 style='text-align:center;'>🌿 SPA DE RELAJACIÓN MULTIMODAL IoT</h1>", unsafe_allow_html=True)
+st.caption("Ambientes conectados a tu maqueta real vía MQTT (Wokwi / Arduino)")
+
+# ==========================
+# AMBIENTES
+# ==========================
+ambientes = {
+    "🌴 Selva (Automático)": {
+        "color": "#00AA55",
+        "temperatura": 20,
+        "humidificador": "ON",
+        "musica": "https://www.youtube.com/watch?v=OdIJ2x3nxzQ"
+    },
+    "🏜️ Desierto (Automático)": {
+        "color": "#D29944",
+        "temperatura": 30,
+        "humidificador": "OFF",
+        "musica": "https://www.youtube.com/watch?v=2OEL4P1Rz04"
+    },
+    "🕯️ Zen Personalizable": {
+        "musica": "https://www.youtube.com/watch?v=lFcSrYw-ARY"
+    }
+}
+
+st.subheader("✨ Selecciona el ambiente de relajación")
+seleccion = st.selectbox("", ambientes.keys())
+data = ambientes[seleccion]
+
+# Música del ambiente
 st_player(data["musica"])
 
-# ---- MODO AUTOMÁTICO ----
-if not data["editable"]:
-    st.subheader("🌱 Ambiente Automático")
-    st.write(f"**Color de luz:** {data['config']['color']}")
-    st.write(f"**Temperatura:** {data['config']['temp']} °C")
-    st.write(f"**Humidificador:** {data['config']['hum']}")
+# ==========================
+# AUTOMÁTICOS
+# ==========================
+if seleccion != "🕯️ Zen Personalizable":
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
 
-    if st.button("✨ Activar Ambiente"):
-        enviar_mqtt(data["config"])
+    st.write(f"**Luz:** {data['color']}")
+    st.write(f"**Temperatura:** {data['temperatura']} °C")
+    st.write(f"**Humidificador:** {data['humidificador']}")
 
+    if st.button("✨ Activar este ambiente"):
+        payload = json.dumps({
+            "color": data["color"],
+            "temp": data["temperatura"],
+            "humidificador": data["humidificador"]
+        })
+        publish("spa_iot_control", payload)
+        st.success("✅ Ambiente enviado a la maqueta")
 
-# ---- MODO PERSONALIZADO ----
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# ==========================
+# PERSONALIZABLE
+# ==========================
 else:
-    st.subheader("🎨 Personalizar Ambiente Zen")
+    st.markdown("<h3>🎨 Personaliza tu ambiente</h3>")
 
-    color = st.color_picker("Color de la luz", "#FFFFFF")
-    temp = st.slider("Temperatura (°C)", 18, 35, 24)
-    hum = st.selectbox("Humidificador (LED):", ["Apagado", "Alto"])
+    luz = st.color_picker("Color de iluminación", "#ffffff")
+    temp = st.slider("Temperatura (°C)", 18, 35, 25)
+    hum = st.selectbox("Humidificador (LED)", ["OFF", "ON"])
 
-    if st.button("💾 Enviar a la Maqueta"):
-        config = {"color":color, "temp":temp, "hum":hum}
-        enviar_mqtt(config)
+    user_music = st.text_input("🎧 Opcional: Pega enlace de YouTube para música personalizada:")
+
+    if user_music:
+        st_player(user_music)
+
+    if st.button("💾 Enviar configuración personalizada"):
+        payload = json.dumps({
+            "color": luz,
+            "temp": temp,
+            "humidificador": hum
+        })
+        publish("spa_iot_control", payload)
+        st.success("✅ Configuración enviada a la maqueta")
+
