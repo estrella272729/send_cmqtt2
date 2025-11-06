@@ -1,79 +1,84 @@
-import paho.mqtt.client as paho
-import time
 import streamlit as st
+from streamlit_player import st_player
+import paho.mqtt.client as paho
 import json
-import platform
 
-# ==========================
-# CONFIGURACIÓN GENERAL
-# ==========================
+# ========== CONFIG MQTT ==========
 broker = "broker.mqttdashboard.com"
 port = 1883
-client_name = "angie_farm"
+topic = "spa_relax/control"
+client_name = "cliente_spa_relax"
 
-# ==========================
-# CALLBACKS
-# ==========================
-def on_publish(client, userdata, result):
-    print("✅ Dato publicado correctamente\n")
+client = paho.Client(client_name)
 
-def on_message(client, userdata, message):
-    global message_received
-    message_received = str(message.payload.decode("utf-8"))
-    st.info(f"📩 Mensaje desde la granja: {message_received}")
+def enviar_mqtt(data):
+    client.connect(broker, port)
+    mensaje = json.dumps(data)
+    client.publish(topic, mensaje)
+    st.success("✅ Comando enviado a la maqueta")
 
-# ==========================
-# CLIENTE MQTT
-# ==========================
-client1 = paho.Client(client_name)
-client1.on_message = on_message
-client1.on_publish = on_publish
-
-# ==========================
-# INTERFAZ
-# ==========================
-st.set_page_config(page_title="Granja Inteligente IoT", page_icon="🌾")
-st.title("🌾 Panel IoT - Granja Inteligente")
-st.caption("Controla tu granja desde el navegador usando MQTT + Wokwi 🐄🐖🐓")
-st.write("Versión de Python:", platform.python_version())
-
-# ==========================
-# SECCIÓN: CONTROL DE SISTEMAS
-# ==========================
-st.header("💡 Control de sistemas automáticos")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    if st.button("☀️ Encender luces del establo"):
-        act1 = "ON"
-        client1.connect(broker, port)
-        message = json.dumps({"Act1": act1})
-        client1.publish("cmqtt_angies", message)
-        st.success("Las luces del establo fueron encendidas 🌞")
-
-with col2:
-    if st.button("🌙 Apagar luces del establo"):
-        act1 = "OFF"
-        client1.connect(broker, port)
-        message = json.dumps({"Act1": act1})
-        client1.publish("cmqtt_angies", message)
-        st.warning("Las luces del establo se apagaron 🌙")
-
-# ==========================
-# SECCIÓN: CONTROL ANALÓGICO
-# ==========================
-st.header("💧 Control del riego automático")
-
-values = st.slider("Selecciona el nivel de riego 💦", 0.0, 100.0, 50.0)
-st.write(f"Nivel actual de riego: **{values:.1f}%**")
-
-if st.button("🚜 Enviar nivel de riego"):
-    client1.connect(broker, port)
-    message = json.dumps({"Analog": float(values)})
-    client1.publish("cmqtt_angiel", message)
-    st.info(f"💧 Nivel de riego actualizado a {values:.1f}%")
+# ========== CONFIG APP ==========
+st.set_page_config(page_title="Spa Multimodal", page_icon="🌿", layout="wide")
+st.title("🌿 ESPACIO DE RELAJACIÓN MULTIMODAL")
 
 
+# ---- DEFINICIÓN DE AMBIENTES ----
+ambientes = {
+    "🌴 Selva (Automático)": {
+        "bg": "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+        "musica": "https://www.youtube.com/watch?v=OdIJ2x3nxzQ",
+        "config": {"color":"#00AA55","temp":20,"hum":"Alto"},
+        "editable": False
+    },
+    "🏜️ Desierto (Automático)": {
+        "bg": "https://images.unsplash.com/photo-1508264165352-258a6f039317",
+        "musica": "https://www.youtube.com/watch?v=2OEL4P1Rz04",
+        "config": {"color":"#D29944","temp":30,"hum":"Bajo"},
+        "editable": False
+    },
+    "🕯️ Zen Personalizable": {
+        "bg": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+        "musica": "https://www.youtube.com/watch?v=lFcSrYw-ARY",
+        "editable": True
+    }
+}
+
+ambiente = st.selectbox("Seleccione un ambiente:", ambientes.keys())
+data = ambientes[ambiente]
+
+# Fondo dinámico
+st.markdown(f"""
+<style>
+.stApp {{
+    background-image: url("{data['bg']}");
+    background-size: cover;
+    background-attachment: fixed;
+}}
+</style>
+""", unsafe_allow_html=True)
+
+# Música ambiente
+st_player(data["musica"])
+
+# ---- MODO AUTOMÁTICO ----
+if not data["editable"]:
+    st.subheader("🌱 Ambiente Automático")
+    st.write(f"**Color de luz:** {data['config']['color']}")
+    st.write(f"**Temperatura:** {data['config']['temp']} °C")
+    st.write(f"**Humidificador:** {data['config']['hum']}")
+
+    if st.button("✨ Activar Ambiente"):
+        enviar_mqtt(data["config"])
 
 
+# ---- MODO PERSONALIZADO ----
+else:
+    st.subheader("🎨 Personalizar Ambiente Zen")
+
+    color = st.color_picker("Color de la luz", "#FFFFFF")
+    temp = st.slider("Temperatura (°C)", 18, 35, 24)
+    hum = st.selectbox("Humidificador (LED):", ["Apagado", "Alto"])
+
+    if st.button("💾 Enviar a la Maqueta"):
+        config = {"color":color, "temp":temp, "hum":hum}
+        enviar_mqtt(config)
