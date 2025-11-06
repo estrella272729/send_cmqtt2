@@ -6,18 +6,18 @@ import base64
 st.set_page_config(page_title="Relax Space", page_icon="🌿", layout="centered")
 
 # ---------- OCULTAR BARRA GRIS DEL AUDIO ----------
-st.markdown("""
+st.markdown(
 <style>
 audio { display: none; }
 </style>
-""", unsafe_allow_html=True)
+, unsafe_allow_html=True)
 
 # ---------- FUNCIÓN PARA FONDO CON BASE64 ----------
 def fondo(nombre_archivo):
     with open(nombre_archivo, "rb") as img:
         encoded = base64.b64encode(img.read()).decode()
 
-    st.markdown(f"""
+    st.markdown(f
     <style>
     .stApp {{
         background-image: url("data:image/jpg;base64,{encoded}");
@@ -34,30 +34,30 @@ def fondo(nombre_archivo):
         margin-top: 14px;
     }}
     </style>
-    """, unsafe_allow_html=True)
+    , unsafe_allow_html=True)
 
-# ---------- FUNCIÓN DE AUDIO CON FADE + DESBLOQUEO ----------
+# ---------- FUNCIÓN DE AUDIO (LLAVES CORREGIDAS) ----------
 def play_audio(file):
-    st.markdown(f"""
-    <audio id="audio" src="{file}" loop></audio>
+    st.markdown(f
+    <audio id="env_audio" src="{file}" loop></audio>
+
     <script>
-        let audio = document.getElementById("audio");
-        document.addEventListener("click", () => {{
-            audio.play();
-            // Fade-in suave
-            audio.volume = 0;
-            let v = 0;
-            let fade = setInterval(() => {{
-                if(v < 1.0) {{
-                    v += 0.02;
-                    audio.volume = v;
-                }} else {{
-                    clearInterval(fade);
-                }}
-            }}, 120);
-        }}, {{ once: true }});
+    let audio = document.getElementById("env_audio");
+    document.addEventListener("click", () => {{
+        audio.play();
+        audio.volume = 0;
+        let v = 0.0;
+        let fade = setInterval(() => {{
+            if (v < 1.0) {{
+                v += 0.02;
+                audio.volume = v;
+            }} else {{
+                clearInterval(fade);
+            }}
+        }}, 120);
+    }}, {{ once: true }});
     </script>
-    """, unsafe_allow_html=True)
+    , unsafe_allow_html=True)
 
 # ---------- MQTT ----------
 broker = "157.230.214.127"
@@ -82,7 +82,7 @@ if ambiente == "Forest":
     st.subheader("🌿 Forest Ambience")
     st.write("Birdsong, fresh air, soft green atmosphere.")
 
-    play_audio("birds.mp3")  # sonido automático
+    play_audio("birds.mp3")
 
     if st.button("Activate Forest"):
         publicar({
@@ -104,7 +104,7 @@ elif ambiente == "Desert":
     st.subheader("🏜️ Desert Ambience")
     st.write("Golden light, soft silence, gentle warm wind.")
 
-    play_audio("wind.mp3")  # sonido automático
+    play_audio("wind.mp3")
 
     if st.button("Activate Desert"):
         publicar({
@@ -131,7 +131,6 @@ else:
     temperatura = st.slider("Temperature (°C):", 16, 32, 24)
     humidificador = st.radio("Humidifier:", ["ON", "OFF"])
 
-    # Sonido solo si el usuario lo elige
     if sonido != "Silence":
         play_audio(f"{sonido.lower()}.mp3")
 
@@ -146,4 +145,3 @@ else:
         st.success("💖 Custom Spa Activated")
 
     st.markdown('</div>', unsafe_allow_html=True)
-
