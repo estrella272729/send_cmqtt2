@@ -4,47 +4,55 @@ import json
 
 st.set_page_config(page_title="Ambientes de Relajación", page_icon="🌿", layout="centered")
 
-# ------------- ESTILO VISUAL GLOBAL -------------
-st.markdown("""
-<style>
-body {
-    background: #f8f7f3;
-}
-.card {
-    padding: 25px;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.60);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.4);
-    margin: 18px 0;
-}
-h1, h2, h3, label, p {
-    font-family: 'Segoe UI', sans-serif;
-}
-</style>
-""", unsafe_allow_html=True)
+# ---------- FUNCIÓN PARA COLOCAR FONDO ----------
+def fondo(url):
+    st.markdown(f"""
+    <style>
+    .stApp {{
+        background-image: url("{url}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
+    .card {{
+        background: rgba(255,255,255,0.65);
+        backdrop-filter: blur(20px);
+        border-radius: 18px;
+        padding: 22px;
+        border: 1px solid rgba(255,255,255,0.45);
+        margin-top: 12px;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
 
-# ------------- MQTT -------------
+# ---------- MQTT ----------
 broker = "157.230.214.127"
 port = 1883
 
 def publicar(mensaje):
-    client = paho.Client("voice_angie")   # <<--- AQUÍ SE CAMBIÓ EL NOMBRE DEL CLIENTE
+    client = paho.Client("voice_angie")  # cliente actualizado
     client.connect(broker, port)
     client.publish("cmqtt_env", json.dumps(mensaje))
     client.disconnect()
 
-st.title("🌿 Espacio de Relajación Multimodal")
+# ---------- UI ----------
 
+st.title("🌿 Espacio de Relajación Multimodal")
 ambiente = st.radio("Selecciona un ambiente:", ["Selva (Bosque)", "Desierto Dorado", "Personalizado (Spa)"])
 
-# ------------- SELVA -------------
+# ---------- SELVA / BOSQUE ----------
 if ambiente == "Selva (Bosque)":
-    st.image("https://i.imgur.com/TgG4YhO.jpg", use_container_width=True)  # Fondo bosque
+    fondo("https://i.imgur.com/kZwdr7d.jpg")
+    
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("🌿 Ambiente Selva / Bosque")
-    st.write("Sonido de pájaros, luz verde suave, sensación de frescura 🌱")
-    st.audio("birds.mp3")
+    st.subheader("🌿 Ambiente Selva")
+    st.write("Sonido de pájaros, luz verde suave, frescura natural.")
+
+    # MUSICA AUTOMÁTICA
+    st.markdown("""
+    <audio src="birds.mp3" autoplay loop></audio>
+    """, unsafe_allow_html=True)
+
     if st.button("Activar Ambiente Selva"):
         publicar({
             "ambiente": "selva",
@@ -54,15 +62,23 @@ if ambiente == "Selva (Bosque)":
             "humidificador": "on"
         })
         st.success("✨ Selva activada")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ------------- DESIERTO -------------
+
+# ---------- DESIERTO DORADO ----------
 elif ambiente == "Desierto Dorado":
-    st.image("https://i.imgur.com/VH3YwWQ.jpg", use_container_width=True)  # Fondo desierto dorado
+    fondo("https://i.imgur.com/HtK8Ij9.jpg")
+    
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🏜️ Ambiente Desierto Dorado")
-    st.write("Luz cálida, viento suave, ambiente templado 🌬️")
-    st.audio("wind.mp3")
+    st.write("Luz cálida, viento suave, tranquilidad profunda.")
+
+    # MUSICA AUTOMÁTICA
+    st.markdown("""
+    <audio src="wind.mp3" autoplay loop></audio>
+    """, unsafe_allow_html=True)
+
     if st.button("Activar Ambiente Desierto"):
         publicar({
             "ambiente": "desierto",
@@ -72,24 +88,30 @@ elif ambiente == "Desierto Dorado":
             "humidificador": "off"
         })
         st.success("🔥 Desierto activado")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ------------- PERSONALIZADO SPA -------------
-else:
-    st.image("https://i.imgur.com/03iZ6PT.jpg", use_container_width=True)  # Fondo spa minimalista
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("🎨 Ambiente Personalizado Spa")
-    st.write("Ajusta la experiencia a tu bienestar 🌸")
 
-    luz = st.color_picker("Color de luz:", "#F5EEDC")
+# ---------- SPA PERSONALIZADO ----------
+else:
+    fondo("https://i.imgur.com/GYBNFH1.jpg")
+    
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.subheader("🎨 Spa Personalizado")
+    st.write("Un ambiente creado a tu medida ✨")
+
+    luz = st.color_picker("Color de luz ambiental:", "#F5EEDC")
     sonido = st.selectbox("Sonido:", ["Lluvia", "Viento", "Instrumental", "Pájaros", "Silencio"])
     temperatura = st.slider("Temperatura (°C):", 16, 32, 24)
     humidificador = st.radio("Humidificador:", ["ON", "OFF"])
 
+    # SOLO SONAR DESPUÉS DE ESCOGER
     if sonido != "Silencio":
-        st.audio(f"{sonido.lower()}.mp3")
+        st.markdown(f"""
+        <audio src="{sonido.lower()}.mp3" autoplay loop></audio>
+        """, unsafe_allow_html=True)
 
-    if st.button("Activar Ambiente Personalizado ✨"):
+    if st.button("Activar Ambiente Spa"):
         publicar({
             "ambiente": "personalizado",
             "luz": luz,
@@ -97,6 +119,6 @@ else:
             "temperatura": temperatura,
             "humidificador": humidificador.lower()
         })
-        st.success("💖 Ambiente Spa Personalizado Activado")
+        st.success("💖 Spa Personalizado Activado")
 
     st.markdown('</div>', unsafe_allow_html=True)
