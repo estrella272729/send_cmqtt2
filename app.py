@@ -23,7 +23,7 @@ st.markdown(
 
     /* Títulos principales */
     h1, h2, h3 {
-        color: black; /* LAVANDA */
+        color: black;
         font-weight: 600;
     }
 
