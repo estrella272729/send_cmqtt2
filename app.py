@@ -23,7 +23,7 @@ st.markdown(
 
     /* Títulos principales */
     h1, h2, h3 {
-        color: blue;
+        color: #9b8adb;
         font-weight: 600;
     }
 
