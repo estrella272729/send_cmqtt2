@@ -17,7 +17,7 @@ st.markdown(
     <style>
     /* Fondo general en tonos suaves */
     .stApp {
-        background: linear-gradient(135deg, #f2fbfb 6%, #f7f3ff 50%, #fdf6f0 100%);
+        background: blue;
         font-family: "Segoe UI", sans-serif;
     }
 
