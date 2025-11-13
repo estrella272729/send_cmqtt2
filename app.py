@@ -31,28 +31,35 @@ client1.on_message = on_message
 
 st.title("MQTT Control")
 
-# --------- CONTROL ON / OFF DIGITAL ----------
-if st.button('ON'):
-    act1 = "ON"
-    client1 = paho.Client("GIT-HUB")
-    client1.on_publish = on_publish
-    client1.connect(broker, port)
-    message = json.dumps({"Act1": act1})
-    ret = client1.publish("cmqtt_s", message)
-else:
-    st.write('')
+# --------- CONTROL HUMIFICADOR (ON / OFF) ----------
+st.subheader("Humificador")
 
-if st.button('OFF'):
-    act1 = "OFF"
-    client1 = paho.Client("GIT-HUB")
-    client1.on_publish = on_publish
-    client1.connect(broker, port)
-    message = json.dumps({"Act1": act1})
-    ret = client1.publish("cmqtt_s", message)
-else:
-    st.write('')
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button('Encender'):
+        act1 = "ON"
+        client1 = paho.Client("GIT-HUB")
+        client1.on_publish = on_publish
+        client1.connect(broker, port)
+        message = json.dumps({"Act1": act1})
+        ret = client1.publish("cmqtt_s", message)
+    else:
+        st.write('')
+
+with col2:
+    if st.button('Apagar'):
+        act1 = "OFF"
+        client1 = paho.Client("GIT-HUB")
+        client1.on_publish = on_publish
+        client1.connect(broker, port)
+        message = json.dumps({"Act1": act1})
+        ret = client1.publish("cmqtt_s", message)
+    else:
+        st.write('')
 
 # --------- ENVÍO DE VALOR ANALÓGICO ----------
+st.subheader("Control Analógico")
 values = st.slider('Selecciona el rango de valores', 0.0, 100.0)
 st.write('Values:', values)
 
@@ -68,7 +75,6 @@ else:
 # --------- REPRODUCCIÓN DE AUDIOS DESDE GITHUB ----------
 st.header("Reproducción de audios")
 
-# Diccionario de audios: NOMBRE VISIBLE -> URL RAW DEL ARCHIVO EN GITHUB
 audios = {
     "Sonido de pajaros": "bird.mp3",
     "Sonido de lluvia": "rain.mp3",
@@ -77,5 +83,4 @@ audios = {
 
 opcion_audio = st.selectbox("Elige un audio para reproducir", list(audios.keys()))
 
-# Muestra el reproductor de audio
 st.audio(audios[opcion_audio], format="audio/mp3")
