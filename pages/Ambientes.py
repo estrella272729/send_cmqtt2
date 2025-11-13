@@ -211,7 +211,7 @@ temperatura = st.slider(
     'Selecciona la temperatura (°C)',
     10.0,
     40.0,
-    20.0  # valor inicial cambiado a 20 °C
+    20.0  # valor inicial 20 °C
 )
 st.write('Temperatura seleccionada:', temperatura, "°C")
 
@@ -226,6 +226,40 @@ else:
 
 st.markdown('</div>', unsafe_allow_html=True)
 
+# --------- CONTROL POR "COMANDO DE VOZ" (Luz) ----------
+st.markdown('<div class="spa-box">', unsafe_allow_html=True)
+st.subheader("🎙️ Control por comando de voz (luz)")
+
+st.markdown(
+    '<p class="spa-caption">Di o escribe un comando como '
+    '<b>"encender luz"</b> o <b>"apagar luz"</b>. '
+    'Si usas un sistema de voz a texto que rellene esta caja, '
+    'el spa reaccionará a tu comando.</p>',
+    unsafe_allow_html=True
+)
+
+comando_voz = st.text_input("Comando de voz (simulado)", "")
+
+if st.button("Ejecutar comando de voz"):
+    cmd = comando_voz.strip().lower()
+
+    client_voice = paho.Client("GIT-ANGIE")
+    client_voice.on_publish = on_publish
+    client_voice.connect(broker, port)
+
+    if "encender luz" in cmd:
+        msg_luz = json.dumps({"Luz": "ON"})
+        client_voice.publish("cmqtt_spa3", msg_luz)
+        st.success("Comando reconocido: encender luz ✅")
+    elif "apagar luz" in cmd:
+        msg_luz = json.dumps({"Luz": "OFF"})
+        client_voice.publish("cmqtt_spa3", msg_luz)
+        st.success("Comando reconocido: apagar luz ✅")
+    else:
+        st.warning("No reconocí el comando. Prueba con 'encender luz' o 'apagar luz'.")
+
+st.markdown('</div>', unsafe_allow_html=True)
+
 # --------- REPRODUCCIÓN DE AUDIOS DESDE GITHUB ----------
 st.markdown('<div class="spa-box">', unsafe_allow_html=True)
 st.subheader("🎧 Sonidos relajantes")
@@ -237,7 +271,6 @@ audios = {
 }
 
 opcion_audio = st.selectbox("Elige un audio para acompañar tu sesión", list(audios.keys()))
-
 st.audio(audios[opcion_audio], format="audio/mp3")
 
 st.markdown('</div>', unsafe_allow_html=True)
