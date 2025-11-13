@@ -58,16 +58,23 @@ with col2:
     else:
         st.write('')
 
-# --------- ENVÍO DE VALOR ANALÓGICO ----------
-st.subheader("Control Analógico")
-values = st.slider('Selecciona el rango de valores', 0.0, 100.0)
-st.write('Values:', values)
+# --------- CONTROL DE TEMPERATURA ----------
+st.subheader("Control de temperatura")
 
-if st.button('Enviar valor analógico'):
+temperatura = st.slider(
+    'Selecciona la temperatura (°C)',
+    10.0,   # mínimo
+    40.0,   # máximo
+    25.0    # valor inicial
+)
+st.write('Temperatura seleccionada:', temperatura, "°C")
+
+if st.button('Enviar temperatura'):
     client1 = paho.Client("GIT-HUB")
     client1.on_publish = on_publish
     client1.connect(broker, port)
-    message = json.dumps({"Analog": float(values)})
+    # Enviamos la temperatura como JSON
+    message = json.dumps({"Temperatura": float(temperatura)})
     ret = client1.publish("cmqtt_a", message)
 else:
     st.write('')
