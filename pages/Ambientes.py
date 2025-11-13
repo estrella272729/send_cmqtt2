@@ -228,7 +228,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # --------- CONTROL POR "COMANDO DE VOZ" (Luz) ----------
 st.markdown('<div class="spa-box">', unsafe_allow_html=True)
-st.subheader("🎙️ Control por comando de voz (luz)")
+st.subheader("🎙️ Control por texto(luz)")
 
 st.markdown(
     '<p class="spa-caption">Di o escribe un comando como '
@@ -240,7 +240,7 @@ st.markdown(
 
 comando_voz = st.text_input("Comando de voz (simulado)", "")
 
-if st.button("Ejecutar comando de voz"):
+if st.button("Ejecutar texto"):
     cmd = comando_voz.strip().lower()
 
     client_voice = paho.Client("GIT-ANGIE")
