@@ -241,3 +241,7 @@ opcion_audio = st.selectbox("Elige un audio para acompañar tu sesión", list(au
 st.audio(audios[opcion_audio], format="audio/mp3")
 
 st.markdown('</div>', unsafe_allow_html=True)
+
+st.audio(audios[opcion_audio], format="audio/mp3")
+
+st.markdown('</div>', unsafe_allow_html=True)
