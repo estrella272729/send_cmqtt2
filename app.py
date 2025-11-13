@@ -39,22 +39,22 @@ col1, col2 = st.columns(2)
 with col1:
     if st.button('Encender'):
         act1 = "ON"
-        client1 = paho.Client("GIT-HUB")
+        client1 = paho.Client("GIT-ANGIE")
         client1.on_publish = on_publish
         client1.connect(broker, port)
         message = json.dumps({"Act1": act1})
-        ret = client1.publish("cmqtt_s", message)
+        ret = client1.publish("cmqtt_spa", message)
     else:
         st.write('')
 
 with col2:
     if st.button('Apagar'):
         act1 = "OFF"
-        client1 = paho.Client("GIT-HUB")
+        client1 = paho.Client("GIT-ANGIE")
         client1.on_publish = on_publish
         client1.connect(broker, port)
         message = json.dumps({"Act1": act1})
-        ret = client1.publish("cmqtt_s", message)
+        ret = client1.publish("cmqtt_spa", message)
     else:
         st.write('')
 
@@ -70,12 +70,12 @@ temperatura = st.slider(
 st.write('Temperatura seleccionada:', temperatura, "°C")
 
 if st.button('Enviar temperatura'):
-    client1 = paho.Client("GIT-HUB")
+    client1 = paho.Client("GIT-ANGIE")
     client1.on_publish = on_publish
     client1.connect(broker, port)
     # Enviamos la temperatura como JSON
     message = json.dumps({"Temperatura": float(temperatura)})
-    ret = client1.publish("cmqtt_a", message)
+    ret = client1.publish("cmqtt_spa2", message)
 else:
     st.write('')
 
