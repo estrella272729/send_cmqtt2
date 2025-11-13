@@ -1,147 +1,73 @@
 import paho.mqtt.client as paho
+import time
 import streamlit as st
 import json
-import base64
+import platform
 
-st.set_page_config(page_title="Relax Space", page_icon="🌿", layout="centered")
+# Muestra la versión de Python junto con detalles adicionales
+st.write("Versión de Python:", platform.python_version())
 
-# ---------- OCULTAR BARRA GRIS DEL AUDIO ----------
-st.markdown(
-<style>
-audio { display: none; }
-</style>
-, unsafe_allow_html=True)
+values = 0.0
+act1="OFF"
 
-# ---------- FUNCIÓN PARA FONDO CON BASE64 ----------
-def fondo(nombre_archivo):
-    with open(nombre_archivo, "rb") as img:
-        encoded = base64.b64encode(img.read()).decode()
+def on_publish(client,userdata,result):             #create function for callback
+    print("el dato ha sido publicado \n")
+    pass
 
-    st.markdown(f
-    <style>
-    .stApp {{
-        background-image: url("data:image/jpg;base64,{encoded}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }}
-    .card {{
-        background: rgba(255,255,255,0.65);
-        backdrop-filter: blur(20px);
-        border-radius: 18px;
-        padding: 22px;
-        border: 1px solid rgba(255,255,255,0.45);
-        margin-top: 14px;
-    }}
-    </style>
-    , unsafe_allow_html=True)
+def on_message(client, userdata, message):
+    global message_received
+    time.sleep(2)
+    message_received=str(message.payload.decode("utf-8"))
+    st.write(message_received)
 
-# ---------- FUNCIÓN DE AUDIO (LLAVES CORREGIDAS) ----------
-def play_audio(file):
-    st.markdown(f
-    <audio id="env_audio" src="{file}" loop></audio>
+        
 
-    <script>
-    let audio = document.getElementById("env_audio");
-    document.addEventListener("click", () => {{
-        audio.play();
-        audio.volume = 0;
-        let v = 0.0;
-        let fade = setInterval(() => {{
-            if (v < 1.0) {{
-                v += 0.02;
-                audio.volume = v;
-            }} else {{
-                clearInterval(fade);
-            }}
-        }}, 120);
-    }}, {{ once: true }});
-    </script>
-    , unsafe_allow_html=True)
 
-# ---------- MQTT ----------
-broker = "157.230.214.127"
-port = 1883
+broker="157.230.214.127"
+port=1883
+client1= paho.Client("GIT-HUB")
+client1.on_message = on_message
 
-def publicar(mensaje):
-    client = paho.Client("voice_angie")
-    client.connect(broker, port)
-    client.publish("cmqtt_env", json.dumps(mensaje))
-    client.disconnect()
 
-# ---------- UI ----------
-st.title("🌿 Relaxation Multimodal Space")
 
-ambiente = st.radio("Choose an environment:", ["Forest", "Desert", "Custom Spa"])
+st.title("MQTT Control")
 
-# ---------- FOREST ----------
-if ambiente == "Forest":
-    fondo("sel.jpg")
-
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("🌿 Forest Ambience")
-    st.write("Birdsong, fresh air, soft green atmosphere.")
-
-    play_audio("birds.mp3")
-
-    if st.button("Activate Forest"):
-        publicar({
-            "ambiente": "selva",
-            "luz": "verde",
-            "sonido": "birds",
-            "temperatura": 22,
-            "humidificador": "on"
-        })
-        st.success("✨ Forest Activated")
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ---------- DESERT ----------
-elif ambiente == "Desert":
-    fondo("desi.jpg")
-
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("🏜️ Desert Ambience")
-    st.write("Golden light, soft silence, gentle warm wind.")
-
-    play_audio("wind.mp3")
-
-    if st.button("Activate Desert"):
-        publicar({
-            "ambiente": "desierto",
-            "luz": "ambar",
-            "sonido": "wind",
-            "temperatura": 28,
-            "humidificador": "off"
-        })
-        st.success("🔥 Desert Activated")
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ---------- CUSTOM SPA ----------
+if st.button('ON'):
+    act1="ON"
+    client1= paho.Client("GIT-HUB")                           
+    client1.on_publish = on_publish                          
+    client1.connect(broker,port)  
+    message =json.dumps({"Act1":act1})
+    ret= client1.publish("cmqtt_s", message)
+ 
+    #client1.subscribe("Sensores")
+    
+    
 else:
-    fondo("spa.jpg")
+    st.write('')
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("🎨 Custom Spa Ambience")
-    st.write("Create your personal relaxation mood ✨")
+if st.button('OFF'):
+    act1="OFF"
+    client1= paho.Client("GIT-HUB")                           
+    client1.on_publish = on_publish                          
+    client1.connect(broker,port)  
+    message =json.dumps({"Act1":act1})
+    ret= client1.publish("cmqtt_s", message)
+  
+    
+else:
+    st.write('')
 
-    luz = st.color_picker("Light color:", "#F5EEDC")
-    sonido = st.selectbox("Sound:", ["Rain", "Wind", "Instrumental", "Birds", "Silence"])
-    temperatura = st.slider("Temperature (°C):", 16, 32, 24)
-    humidificador = st.radio("Humidifier:", ["ON", "OFF"])
+values = st.slider('Selecciona el rango de valores',0.0, 100.0)
+st.write('Values:', values)
 
-    if sonido != "Silence":
-        play_audio(f"{sonido.lower()}.mp3")
-
-    if st.button("Activate Custom Spa"):
-        publicar({
-            "ambiente": "personalizado",
-            "luz": luz,
-            "sonido": sonido.lower(),
-            "temperatura": temperatura,
-            "humidificador": humidificador.lower()
-        })
-        st.success("💖 Custom Spa Activated")
-
-    st.markdown('</div>', unsafe_allow_html=True)
+if st.button('Enviar valor analógico'):
+    client1= paho.Client("GIT-HUB")                           
+    client1.on_publish = on_publish                          
+    client1.connect(broker,port)   
+    message =json.dumps({"Analog": float(values)})
+    ret= client1.publish("cmqtt_a", message)
+    
+ 
+else:
+    st.write('')
