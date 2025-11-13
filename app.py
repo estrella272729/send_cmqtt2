@@ -37,7 +37,7 @@ st.subheader("Humificador")
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button('Encender'):
+    if st.button('Encender humificador'):
         act1 = "ON"
         client1 = paho.Client("GIT-ANGIE")
         client1.on_publish = on_publish
@@ -48,13 +48,38 @@ with col1:
         st.write('')
 
 with col2:
-    if st.button('Apagar'):
+    if st.button('Apagar humificador'):
         act1 = "OFF"
         client1 = paho.Client("GIT-ANGIE")
         client1.on_publish = on_publish
         client1.connect(broker, port)
         message = json.dumps({"Act1": act1})
         ret = client1.publish("cmqtt_spa", message)
+    else:
+        st.write('')
+
+# --------- CONTROL DE LUZ (ON / OFF) ----------
+st.subheader("Luz")
+
+col3, col4 = st.columns(2)
+
+with col3:
+    if st.button('Encender luz'):
+        client1 = paho.Client("GIT-ANGIE")
+        client1.on_publish = on_publish
+        client1.connect(broker, port)
+        message = json.dumps({"Luz": "ON"})
+        ret = client1.publish("cmqtt_spa3", message)
+    else:
+        st.write('')
+
+with col4:
+    if st.button('Apagar luz'):
+        client1 = paho.Client("GIT-ANGIE")
+        client1.on_publish = on_publish
+        client1.connect(broker, port)
+        message = json.dumps({"Luz": "OFF"})
+        ret = client1.publish("cmqtt_spa3", message)
     else:
         st.write('')
 
@@ -91,3 +116,4 @@ audios = {
 opcion_audio = st.selectbox("Elige un audio para reproducir", list(audios.keys()))
 
 st.audio(audios[opcion_audio], format="audio/mp3")
+
