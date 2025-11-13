@@ -43,7 +43,7 @@ st.markdown(
         padding: 0.5rem 1.2rem;
         border: none;
         background: linear-gradient(135deg, #6ec6b3, #4f8fba);
-        color: white;
+        color: blue;
         font-weight: 600;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         cursor: pointer;
