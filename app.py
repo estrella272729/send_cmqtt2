@@ -7,7 +7,6 @@ import platform
 # Muestra la versión de Python
 st.write("Versión de Python:", platform.python_version())
 
-values = 0.0
 act1 = "OFF"
 message_received = ""
 
@@ -31,35 +30,80 @@ client1.on_message = on_message
 
 st.title("MQTT Control")
 
+# ==============================
+#      AMBIENTES PREDEFINIDOS
+# ==============================
+
+st.header("Ambientes predeterminados")
+
+# Valores predefinidos (puedes cambiarlos)
+AMBIENTE_1_TEMP = 22.0
+AMBIENTE_2_TEMP = 28.0
+
+col_a1, col_a2 = st.columns(2)
+
+with col_a1:
+    st.subheader("Ambiente 1")
+    st.write("Temperatura: ", AMBIENTE_1_TEMP, "°C")
+    if st.button("Encender ambiente 1"):
+        client = paho.Client("GIT-HUB")
+        client.on_publish = on_publish
+        client.connect(broker, port)
+
+        # Enciende humificador
+        msg_hum = json.dumps({"Act1": "ON"})
+        client.publish("cmqtt_s", msg_hum)
+
+        # Envía temperatura predeterminada
+        msg_temp = json.dumps({"Temperatura": AMBIENTE_1_TEMP})
+        client.publish("cmqtt_a", msg_temp)
+
+with col_a2:
+    st.subheader("Ambiente 2")
+    st.write("Temperatura: ", AMBIENTE_2_TEMP, "°C")
+    if st.button("Encender ambiente 2"):
+        client = paho.Client("GIT-HUB")
+        client.on_publish = on_publish
+        client.connect(broker, port)
+
+        # Enciende humificador
+        msg_hum = json.dumps({"Act1": "ON"})
+        client.publish("cmqtt_s", msg_hum)
+
+        # Envía temperatura predeterminada
+        msg_temp = json.dumps({"Temperatura": AMBIENTE_2_TEMP})
+        client.publish("cmqtt_a", msg_temp)
+
+# ==============================
+#   AMBIENTE 3 PERSONALIZABLE
+# ==============================
+st.header("Ambiente 3 (personalizable)")
+
 # --------- CONTROL HUMIFICADOR (ON / OFF) ----------
 st.subheader("Humificador")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button('Encender'):
+    if st.button('Encender humificador (Ambiente 3)'):
         act1 = "ON"
-        client1 = paho.Client("GIT-HUB")
-        client1.on_publish = on_publish
-        client1.connect(broker, port)
+        client = paho.Client("GIT-HUB")
+        client.on_publish = on_publish
+        client.connect(broker, port)
         message = json.dumps({"Act1": act1})
-        ret = client1.publish("cmqtt_s", message)
-    else:
-        st.write('')
+        client.publish("cmqtt_s", message)
 
 with col2:
-    if st.button('Apagar'):
+    if st.button('Apagar humificador (Ambiente 3)'):
         act1 = "OFF"
-        client1 = paho.Client("GIT-HUB")
-        client1.on_publish = on_publish
-        client1.connect(broker, port)
+        client = paho.Client("GIT-HUB")
+        client.on_publish = on_publish
+        client.connect(broker, port)
         message = json.dumps({"Act1": act1})
-        ret = client1.publish("cmqtt_s", message)
-    else:
-        st.write('')
+        client.publish("cmqtt_s", message)
 
-# --------- CONTROL DE TEMPERATURA ----------
-st.subheader("Control de temperatura")
+# --------- CONTROL DE TEMPERATURA (PERSONALIZABLE) ----------
+st.subheader("Control de temperatura (Ambiente 3)")
 
 temperatura = st.slider(
     'Selecciona la temperatura (°C)',
@@ -69,17 +113,16 @@ temperatura = st.slider(
 )
 st.write('Temperatura seleccionada:', temperatura, "°C")
 
-if st.button('Enviar temperatura'):
-    client1 = paho.Client("GIT-HUB")
-    client1.on_publish = on_publish
-    client1.connect(broker, port)
-    # Enviamos la temperatura como JSON
+if st.button('Enviar temperatura (Ambiente 3)'):
+    client = paho.Client("GIT-HUB")
+    client.on_publish = on_publish
+    client.connect(broker, port)
     message = json.dumps({"Temperatura": float(temperatura)})
-    ret = client1.publish("cmqtt_a", message)
-else:
-    st.write('')
+    client.publish("cmqtt_a", message)
 
-# --------- REPRODUCCIÓN DE AUDIOS DESDE GITHUB ----------
+# ==============================
+#   REPRODUCCIÓN DE AUDIOS
+# ==============================
 st.header("Reproducción de audios")
 
 audios = {
@@ -91,3 +134,4 @@ audios = {
 opcion_audio = st.selectbox("Elige un audio para reproducir", list(audios.keys()))
 
 st.audio(audios[opcion_audio], format="audio/mp3")
+
