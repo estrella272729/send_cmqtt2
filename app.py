@@ -23,7 +23,7 @@ st.markdown(
 
     /* Títulos principales */
     h1, h2, h3 {
-        color: green;
+        color: #9b8adb; /* LAVANDA */
         font-weight: 600;
     }
 
@@ -175,9 +175,9 @@ st.subheader("🌡️ Control de temperatura")
 
 temperatura = st.slider(
     'Selecciona la temperatura (°C)',
-    10.0,   # mínimo
-    40.0,   # máximo
-    25.0    # valor inicial
+    10.0,
+    40.0,
+    25.0
 )
 st.write('Temperatura seleccionada:', temperatura, "°C")
 
@@ -185,7 +185,6 @@ if st.button('Enviar temperatura'):
     client1 = paho.Client("GIT-ANGIE")
     client1.on_publish = on_publish
     client1.connect(broker, port)
-    # Enviamos la temperatura como JSON
     message = json.dumps({"Temperatura": float(temperatura)})
     ret = client1.publish("cmqtt_spa2", message)
 else:
@@ -208,4 +207,5 @@ opcion_audio = st.selectbox("Elige un audio para acompañar tu sesión", list(au
 st.audio(audios[opcion_audio], format="audio/mp3")
 
 st.markdown('</div>', unsafe_allow_html=True)
+
 
