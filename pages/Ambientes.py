@@ -226,19 +226,20 @@ else:
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --------- CONTROL POR "COMANDO DE VOZ" (Luz) ----------
+# --------- CONTROL POR TEXTO (Luz y Humificador) ----------
 st.markdown('<div class="spa-box">', unsafe_allow_html=True)
-st.subheader("🎙️ Control por texto(luz)")
+st.subheader("🎙️ Control por texto (luz y humificador)")
 
 st.markdown(
-    '<p class="spa-caption">Di o escribe un comando como '
-    '<b>"encender luz"</b> o <b>"apagar luz"</b>. '
+    '<p class="spa-caption">Escribe un comando como '
+    '<b>"encender luz"</b>, <b>"apagar luz"</b>, '
+    '<b>"encender humidificador"</b> o <b>"apagar humidificador"</b>. '
     'Si usas un sistema de voz a texto que rellene esta caja, '
     'el spa reaccionará a tu comando.</p>',
     unsafe_allow_html=True
 )
 
-comando_voz = st.text_input("Comando de voz (simulado)", "")
+comando_voz = st.text_input("Comando (simulado)", "")
 
 if st.button("Ejecutar texto"):
     cmd = comando_voz.strip().lower()
@@ -255,8 +256,21 @@ if st.button("Ejecutar texto"):
         msg_luz = json.dumps({"Luz": "OFF"})
         client_voice.publish("cmqtt_spa3", msg_luz)
         st.success("Comando reconocido: apagar luz ✅")
+    elif "encender humidificador" in cmd or "encender humificador" in cmd:
+        # Aceptamos con y sin 'i' por si acaso
+        msg_hum = json.dumps({"Act1": "ON"})
+        client_voice.publish("cmqtt_spa", msg_hum)
+        st.success("Comando reconocido: encender humificador ✅")
+    elif "apagar humidificador" in cmd or "apagar humificador" in cmd:
+        msg_hum = json.dumps({"Act1": "OFF"})
+        client_voice.publish("cmqtt_spa", msg_hum)
+        st.success("Comando reconocido: apagar humificador ✅")
     else:
-        st.warning("No reconocí el comando. Prueba con 'encender luz' o 'apagar luz'.")
+        st.warning(
+            "No reconocí el comando. Prueba con: "
+            "'encender luz', 'apagar luz', "
+            "'encender humidificador' o 'apagar humidificador'."
+        )
 
 st.markdown('</div>', unsafe_allow_html=True)
 
