@@ -70,9 +70,9 @@ st.header("Reproducción de audios")
 
 # Diccionario de audios: NOMBRE VISIBLE -> URL RAW DEL ARCHIVO EN GITHUB
 audios = {
-    "Audio 1": "bird.mp3",
-    "Audio 2": "rain.mp3",
-    # Añade más audios aquí...
+    "Sonido de pajaros": "bird.mp3",
+    "Sonido de lluvia": "rain.mp3",
+    "Sonido instrumental": "instrumental.mp3",
 }
 
 opcion_audio = st.selectbox("Elige un audio para reproducir", list(audios.keys()))
