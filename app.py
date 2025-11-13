@@ -23,7 +23,7 @@ st.markdown(
 
     /* Títulos principales */
     h1, h2, h3 {
-        color: #9b8adb;
+        color: green;
         font-weight: 600;
     }
 
@@ -104,7 +104,7 @@ client1 = paho.Client("GIT-ANGIE")
 client1.on_message = on_message
 
 # ---- TÍTULO PRINCIPAL ----
-st.title("💧 Spa Domótico MQTT")
+st.title("Spa Domótico")
 st.markdown(
     '<p class="spa-caption">Controla el humificador, la luz ambiente y la temperatura, '
     'y acompáñalo con sonidos relajantes.</p>',
@@ -113,7 +113,7 @@ st.markdown(
 
 # --------- CONTROL HUMIFICADOR (ON / OFF) ----------
 st.markdown('<div class="spa-box">', unsafe_allow_html=True)
-st.subheader("🧖‍♀️ Humificador")
+st.subheader("Humificador")
 
 col1, col2 = st.columns(2)
 
